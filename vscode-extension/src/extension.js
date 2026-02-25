@@ -12,10 +12,14 @@ function detectLanguage(langId) {
 }
 
 // 시스템 프롬프트
-function buildSystemPrompt(lang, focus) {
-  let prompt = `당신은 코드를 처음 보는 비전공자에게 설명해주는 선생님입니다.
+function buildSystemPrompt(lang, outputLang, focus) {
+  const isKorean = outputLang !== 'English'
+
+  let prompt = isKorean
+    ? `당신은 코드를 처음 보는 비전공자에게 설명해주는 선생님입니다.
 
 [필수 규칙]
+- 반드시 한국어로만 작성 (한자, 중국어, 일본어 혼용 절대 금지)
 - 인사말, 도입부 없이 바로 설명 시작
 - 이모지, 이모티콘 사용 금지
 - 아래 형식을 반드시 따를 것
@@ -38,10 +42,46 @@ Step 2. (제목)
 
 [설명 스타일]
 - 함수 -> 기능 상자, 변수 -> 이름표 붙은 통, 배열 -> 순서 있는 목록
-- 전문 용어는 괄호로 풀어서 설명
+- 객체/딕셔너리 -> 라벨이 붙은 서랍장, 반복문 -> 같은 작업을 반복하는 기계
+- 조건문 -> 갈림길 표지판, return -> 결과물을 밖으로 내보내기
+- 전문 용어는 괄호로 풀어서 설명 (예: 재귀 함수 (자기 자신을 다시 부르는 함수))
 - 언어: ${lang}`
+    : `You are a teacher explaining code to a non-developer beginner.
 
-  if (focus) prompt += `\n- 특히 이 부분에 집중: ${focus}`
+[Required Rules]
+- Always write in English only
+- No greetings or introductions — start explaining immediately
+- No emojis or emoticons
+- Follow the output format strictly
+
+[Output Format]
+## What this code does
+(one-sentence summary)
+
+## Step-by-step explanation
+
+Step 1. (title)
+(2-3 lines of explanation)
+
+Step 2. (title)
+(2-3 lines of explanation)
+
+## Key Points
+- (key concept 1)
+- (key concept 2)
+
+[Explanation Style]
+- function -> a task box, variable -> a labeled container, array -> an ordered list
+- object/dictionary -> a labeled drawer set, loop -> a machine repeating the same task
+- conditional -> a fork in the road, return -> sending a result out
+- Explain technical terms in plain words (e.g., recursion (a function that calls itself))
+- Language: ${lang}`
+
+  if (focus) {
+    prompt += isKorean
+      ? `\n- 특히 이 부분에 집중: ${focus}`
+      : `\n- Focus especially on: ${focus}`
+  }
   return prompt
 }
 
@@ -331,6 +371,10 @@ function activate(context) {
       if (!apiKey) return
     }
 
+    const cfg = vscode.workspace.getConfiguration('nondevCode')
+    const outputLang = cfg.get('outputLanguage') || '한국어'
+    const isKorean = outputLang !== 'English'
+
     const panel = vscode.window.createWebviewPanel(
       'codeNarrator',
       `비전공코드: ${source}`,
@@ -340,9 +384,13 @@ function activate(context) {
 
     panel.webview.html = getWebviewHtml(lang, source)
 
+    const userPrompt = isKorean
+      ? `다음 ${lang} 코드를 설명해줘:\n\n\`\`\`${lang}\n${code}\n\`\`\``
+      : `Please explain the following ${lang} code:\n\n\`\`\`${lang}\n${code}\n\`\`\``
+
     const messages = [
-      { role: 'system', content: buildSystemPrompt(lang) },
-      { role: 'user', content: `다음 ${lang} 코드를 설명해줘:\n\n\`\`\`${lang}\n${code}\n\`\`\`` },
+      { role: 'system', content: buildSystemPrompt(lang, outputLang) },
+      { role: 'user', content: userPrompt },
     ]
 
     try {

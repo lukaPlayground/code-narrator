@@ -2,7 +2,7 @@
   "name": "nondev-code",
   "displayName": "비전공코드",
   "description": "비전공자를 위한 코드 설명 도구 — AI가 코드를 쉬운 말로 단계별로 설명해줍니다",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "lukaplayground",
   "license": "MIT",
   "repository": {
@@ -65,6 +65,12 @@
           "type": "string",
           "default": "",
           "description": "Groq API 키 — https://console.groq.com/keys 에서 무료로 발급"
+        },
+        "nondevCode.outputLanguage": {
+          "type": "string",
+          "enum": ["한국어", "English"],
+          "default": "한국어",
+          "description": "AI 설명 출력 언어 (한국어 / English)"
         }
       }
     }
