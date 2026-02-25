@@ -276,17 +276,29 @@ function activate(context) {
     return cfg.get('groqApiKey') || process.env.GROQ_API_KEY || ''
   }
 
+  // API 키 없을 때 입력창 팝업 → 설정에 자동 저장
+  async function promptAndSaveApiKey() {
+    const key = await vscode.window.showInputBox({
+      title: '비전공코드 — Groq API 키 입력',
+      prompt: 'console.groq.com/keys 에서 무료로 발급받을 수 있어요',
+      placeHolder: 'gsk_...',
+      password: true,
+      ignoreFocusOut: true,
+      validateInput: (v) => v.trim() ? null : 'API 키를 입력해주세요',
+    })
+    if (!key) return null
+    await vscode.workspace
+      .getConfiguration('nondevCode')
+      .update('groqApiKey', key.trim(), vscode.ConfigurationTarget.Global)
+    vscode.window.showInformationMessage('비전공코드: API 키가 저장됐어요!')
+    return key.trim()
+  }
+
   async function runExplain(code, lang, source) {
-    const apiKey = getApiKey()
+    let apiKey = getApiKey()
     if (!apiKey) {
-      const action = await vscode.window.showErrorMessage(
-        'GROQ_API_KEY가 없어요. 설정에서 입력해주세요.',
-        'API 키 설정'
-      )
-      if (action === 'API 키 설정') {
-        vscode.commands.executeCommand('workbench.action.openSettings', 'codeNarrator.groqApiKey')
-      }
-      return
+      apiKey = await promptAndSaveApiKey()
+      if (!apiKey) return
     }
 
     const panel = vscode.window.createWebviewPanel(
