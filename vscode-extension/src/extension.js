@@ -276,21 +276,51 @@ function activate(context) {
     return cfg.get('groqApiKey') || process.env.GROQ_API_KEY || ''
   }
 
-  // API 키 없을 때 입력창 팝업 → 설정에 자동 저장
+  // API 키 없을 때 단계별 안내
   async function promptAndSaveApiKey() {
+    // 1단계: 발급 안내 메시지
+    const action = await vscode.window.showInformationMessage(
+      '비전공코드를 사용하려면 Groq API 키가 필요해요. 무료로 발급받을 수 있어요!',
+      { modal: false },
+      '키 발급받기 (브라우저 열기)',
+      '이미 있어요, 입력할게요'
+    )
+
+    if (!action) return null
+
+    // "키 발급받기" 클릭 → 브라우저 오픈 후 입력창
+    if (action === '키 발급받기 (브라우저 열기)') {
+      await vscode.env.openExternal(vscode.Uri.parse('https://console.groq.com/keys'))
+      // 브라우저에서 키 복사할 시간을 주기 위해 안내 메시지 후 입력창
+      await vscode.window.showInformationMessage(
+        '① console.groq.com 로그인  ②  "Create API key" 클릭  ③  키 복사 후 아래에 붙여넣기',
+        { modal: true },
+        '키 입력하기'
+      )
+    }
+
+    // 2단계: 키 입력창
     const key = await vscode.window.showInputBox({
       title: '비전공코드 — Groq API 키 입력',
-      prompt: 'console.groq.com/keys 에서 무료로 발급받을 수 있어요',
-      placeHolder: 'gsk_...',
+      prompt: '발급받은 키를 붙여넣어 주세요 (gsk_로 시작해요)',
+      placeHolder: 'gsk_xxxxxxxxxxxxxxxxxxxx',
       password: true,
       ignoreFocusOut: true,
-      validateInput: (v) => v.trim() ? null : 'API 키를 입력해주세요',
+      validateInput: (v) => {
+        if (!v.trim()) return 'API 키를 입력해주세요'
+        if (!v.trim().startsWith('gsk_')) return 'Groq 키는 gsk_ 로 시작해요'
+        return null
+      },
     })
+
     if (!key) return null
+
+    // 3단계: 전역 설정에 저장
     await vscode.workspace
       .getConfiguration('nondevCode')
       .update('groqApiKey', key.trim(), vscode.ConfigurationTarget.Global)
-    vscode.window.showInformationMessage('비전공코드: API 키가 저장됐어요!')
+
+    vscode.window.showInformationMessage('API 키가 저장됐어요! 이제 코드를 우클릭해서 설명을 받아보세요.')
     return key.trim()
   }
 
