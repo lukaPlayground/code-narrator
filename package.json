@@ -1,0 +1,29 @@
+{
+  "name": "code-narrator",
+  "version": "0.1.0",
+  "description": "비전공자를 위한 코드 설명 도구",
+  "type": "module",
+  "bin": {
+    "code-narrator": "bin/code-narrator.js"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node bin/code-narrator.js",
+    "dev": "node --watch bin/code-narrator.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@google/generative-ai": "^0.24.1",
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "dotenv": "^16.4.5",
+    "groq-sdk": "^0.37.0",
+    "ora": "^8.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0"
+  }
+}

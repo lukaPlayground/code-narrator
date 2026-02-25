@@ -1,0 +1,62 @@
+{
+  "name": "nondev-code",
+  "displayName": "비전공코드",
+  "description": "비전공자를 위한 코드 설명 도구 — AI가 코드를 쉬운 말로 단계별로 설명해줍니다",
+  "version": "0.1.0",
+  "publisher": "lukaplayground",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lukaPlayground/code-narrator"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Education", "Other"],
+  "keywords": [
+    "비전공자", "코드 설명", "AI", "초보자", "코드 읽기",
+    "code explanation", "beginner", "korean", "groq", "llama"
+  ],
+  "activationEvents": [
+    "onCommand:nondevCode.explain",
+    "onCommand:nondevCode.explainSelection"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "nondevCode.explain",
+        "title": "비전공코드: 이 파일 설명해줘"
+      },
+      {
+        "command": "nondevCode.explainSelection",
+        "title": "비전공코드: 선택한 코드 설명해줘"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "nondevCode.explainSelection",
+          "when": "editorHasSelection",
+          "group": "navigation"
+        },
+        {
+          "command": "nondevCode.explain",
+          "when": "!editorHasSelection",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "비전공코드",
+      "properties": {
+        "nondevCode.groqApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Groq API 키 — https://console.groq.com/keys 에서 무료로 발급"
+        }
+      }
+    }
+  },
+  "dependencies": {}
+}
