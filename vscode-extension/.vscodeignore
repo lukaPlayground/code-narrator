@@ -4,3 +4,5 @@
 **/*.ts
 !dist/**
 node_modules/**
+logo-preview.html
+*.vsix
