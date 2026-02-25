@@ -12,10 +12,21 @@
   "engines": {
     "vscode": "^1.80.0"
   },
-  "categories": ["Education", "Other"],
+  "categories": [
+    "Education",
+    "Other"
+  ],
   "keywords": [
-    "비전공자", "코드 설명", "AI", "초보자", "코드 읽기",
-    "code explanation", "beginner", "korean", "groq", "llama"
+    "비전공자",
+    "코드 설명",
+    "AI",
+    "초보자",
+    "코드 읽기",
+    "code explanation",
+    "beginner",
+    "korean",
+    "groq",
+    "llama"
   ],
   "activationEvents": [
     "onCommand:nondevCode.explain",
@@ -58,5 +69,12 @@
       }
     }
   },
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "@vscode/vsce": "^3.7.1"
+  },
+  "scripts": {
+    "package": "vsce package",
+    "publish": "vsce publish"
+  }
 }
